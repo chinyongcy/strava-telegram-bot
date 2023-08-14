@@ -13,7 +13,13 @@ load_dotenv()
 
 bot = Bot(token=TG_BOT_TOKEN)
 
-def send_message(tele_id, message):
+def send_message(tele_id, message, start_new_loop=False):
+    if start_new_loop:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    else:
+        pass
+        
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
         async_send_message(tele_id, message)
@@ -25,8 +31,8 @@ def send_message(tele_id, message):
 #     logging.error(message) 
 #     send_message(TG_ADMIN_ID, message)
 
-def service_started(service):
-    send_message(TG_ADMIN_ID, f"{service} started")
+def service_started(service, start_new_loop=False):
+    send_message(TG_ADMIN_ID, f"{service} started", start_new_loop=start_new_loop)
 
 
 async def async_send_message(tele_id, message):

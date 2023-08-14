@@ -2,6 +2,7 @@ import time
 import asyncio
 import aiomysql
 import logging
+import json
 import os
 from dotenv import load_dotenv
 import logging
@@ -355,12 +356,44 @@ class Athlete:
             polyline = detailed_activity['map']['polyline']
             
             query = """INSERT INTO polylines (id, polyline) VALUES (%s, %s) 
-                    ON DUPLICATE KEY UPDATE polyline = %s
+                    ON DUPLICATE KEY UPDATE
+                    polyline = %s,
+                    latlng = latlng
                     """
             params = (activity_id, polyline, polyline)
             self.pool.write(query, params)
         return polyline
 
+    def update_latlng(self, activity_id):
+        latlng = Strava.get_activity_streams(self, activity_id, 'latlng')
+        latlng_update_count = 0
+        for _, fetched_types in enumerate(latlng):
+            if fetched_types['type'] == "latlng":
+                # Encode List as Json
+                encoded_latlng = json.dumps(fetched_types['data'])
+                text_latlng =  str(encoded_latlng)
+                # Upload To DB
+                query = f"""
+                        INSERT INTO polylines (id, latlng)
+                        VALUES (%s, %s)
+                        ON DUPLICATE KEY UPDATE 
+                        polyline = polyline,
+                        latlng = %s
+                        """
+                args = (activity_id, text_latlng, text_latlng)
+                self.pool.write(query, args)
+                latlng_update_count += 1
+        return encoded_latlng, latlng_update_count
+    
+    def get_latlng(self, activity_id):
+        query = "SELECT latlng FROM polylines WHERE id = %s"
+        result = self.pool.fetch(query, activity_id, all=False, dictionary=False)
+        if result and result[0] != None:
+            return result[0]
+        else:
+            latlng, _ = self.update_latlng(activity_id)
+            return latlng
+    
     def get_info(self):
         query = """
                 SELECT first_name, last_name, push_notification, reminder_on, reminder_days, reminder_last
@@ -388,7 +421,6 @@ class Athlete:
         else:
             return result['profile']
     
-        
     def get_gpx(self, activity_id):
         # Ensure directory is there
         gpx_root = "gpx_files"
@@ -504,7 +536,15 @@ class Athlete:
         else:
             return gpx_path
     
-    
+    def delete_activity(self, activity_id):
+        query = "DELETE FROM strava_activities WHERE id = %s AND strava_id = %s"
+        args = (activity_id, self.strava_id)
+        result = self.pool.write(query, args)
+        return result
+    def delete_profile(self):
+        query = "DELETE FROM users WHERE strava_id = %s"
+        result =self.pool.write(query, self.strava_id)
+        return result
 
 
 class Strava:

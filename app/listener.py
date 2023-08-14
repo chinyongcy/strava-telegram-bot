@@ -4,29 +4,28 @@ from flask import Flask, request, abort, redirect
 from os import getenv
 from dotenv import load_dotenv
 import sys
+import time
 
 import hmac
 import hashlib
 
 import logging
 
-
-sys.path.append('../app')
 from strava import Athlete
 # from ..app.strava import Strava, Athlete
-# import threading
+import threading
 import queue
 
 from telegram import async_send_error, async_send_message, service_started
 from database import ConnectionPool
 
+import asyncio
 load_dotenv()
 
 HOST = getenv("DB_HOST")
 USER = getenv("DB_USER")
 PASSWORD = getenv("DB_PASSWORD")
 DB_NAME = getenv("DB_DATABASE_NAME")
-
 
 SV_VERIFY_TOKEN = getenv("SV_VERIFY_TOKEN")
 SV_CLIENT_ID = getenv('SV_CLIENT_ID')             
@@ -40,8 +39,46 @@ NUM_OF_WORKERS = int(getenv("NUM_OF_WORKERS"))
 
 APP_DOMAIN = getenv('APP_DOMAIN')
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+q = queue.Queue()
+service_started("Strava Listener")
+def process_task():
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    # for x in range(10):
+    #     print(x)
+    #     time.sleep(1)
+    # print("Processed!")
+    service_started("Strava TESTER LALALA")
+
+
+def worker():
+    threadName = threading.current_thread().name
+    logging.info(f"Started Thread {threadName}")
+
+    while True:
+        task = q.get()
+        if task is None:
+            break
+        process_task()
+        logging.debug(f"Processing on {threadName}")
+        q.task_done()
+
+def start_workers(worker_pool=5):
+    for i in range(worker_pool):
+        t = threading.Thread(target=worker, name = i)
+        t.start()
+
+def create_queue(task_items):
+    q.put(task_items)
+
+
+workers = start_workers(worker_pool=NUM_OF_WORKERS)
+
+
 app = Flask(__name__)
-# q = queue.Queue()
+
 
 pool = ConnectionPool(
     host=HOST,
@@ -102,6 +139,8 @@ async def strava_new_event():
     return response
 
 
+
+
 # @app.route('/new_event', methods=['POST'])
 # def new_webhook_event():
 #     try:
@@ -123,6 +162,13 @@ async def strava_new_event():
 #         abort(401)
 #     return response
 
+@app.route('/test')
+def test_handler():
+    print("creating queue")
+    create_queue("hi")
+
+    return "ok"
+
 @app.route('/new_user')
 async def new_user_handler():
     try:
@@ -137,9 +183,6 @@ async def new_user_handler():
         await async_send_error(f"{request.path} - {e}")
         await async_send_message(f"{request.path} - Error Creating New User @{username} ({first_name})")
 
-
-
-
     return "processing"
 
 # This route will demonstrate a synchronous function
@@ -149,33 +192,9 @@ def sync_example():
 
     # Processing New Activities Thread Pool
 
-# def worker():
-#     threadName = threading.current_thread().name
-#     logging.info(f"Started Thread {threadName}")
-    
-#     while True:
-#         task = q.get()
-#         if task is None:
-#             break
-#         logging.debug(f"Processing on {threadName}")
-#         q.task_done()
 
-# def start_workers(worker_pool=5):
-#     for i in range(worker_pool):
-#         t = threading.Thread(target=worker, name = i)
-#         t.start()
-
-# def create_queue(task_items):
-#     q.put(task_items)
+if __name__ == '__main__':  
+    #serve(app, host="0.0.0.0", port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5555, use_reloader=False)
 
 
-# workers = start_workers(worker_pool=NUM_OF_WORKERS)
-#service_started("Strava Listener")
-
-
-
-# serve(app, host="0.0.0.0", port=5000)
-app.run(debug=True, host='0.0.0.0', port=5555)
-
-
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -1,0 +1,75 @@
+{   
+    "/help" : {
+        "/stathelp":        "Display usage and default behvaiour of /stats",
+
+        "/heatmap":         "Generate all the activities you have done in Singapore, and place it in a map.",
+
+        "/worldheatmap":    "Generate all the activities you have done around the world, and place it in a map.",
+
+        "/list":             "List last 15 of your activity. To be used on /map or /pic",
+
+        "/map":             ["Combine up to 10 activities (based on /list) into  into a summary view.",
+                            "Remember your brackets!"],
+
+        "/pic":              ["Combine up to 3 activites into one image (copying Iron Man summary style)",
+                            "Will use the image of the first input activity.",
+                            "If there is no image to be found, profile picture will be used."],
+
+        "/morehelp":        "Show second page help menu",
+
+        "Disclaimer":       "All all activities type only includes Swim, Bike and Run."   
+    },
+
+    "/morehelp" : {
+        "/update":          "All all activities type only includes Swim, Bike and Run.",
+
+        "/profileupdate":    "Update your profile and heartrate zones.",
+
+        "/forcefix":        "Fix Strava account issue (Force refresh access token)",
+
+        "/notification":    "Turn on/off push notification to you whenever a new activity is uploaded to Strava.",
+
+        "/authenticate":    ["Sign Up/Force reautenticate to relink Telegram & Strava.",
+                            "<a href='https://tcy.ddnsfree.com/login'>Authenticate Here! (Click Me)</a>"],
+
+        "/debug":           "Return you your Telegram User ID."
+    },
+
+    "/stathelp" : {
+        "/stats":           ["[Type]: Run",
+                            "<b>[No. of Activities]:</b> 10",
+                            "Show last <b>10</b> run activities.",
+                            "if the option are not specified,",
+                            "Type will be defaulted to Run and",
+                            "No. of activities will be defaulted to 10"],
+
+        "Usage":            ["<b>/stats + [Type]</b>+  <b>[No. of Activities]</b>  +  <b>[HR Zone]</b>",
+                            "<b>[Type]:</b> swim, bike, run, all",
+                            "<b>[No. of Activities]:</b> any positive number",
+                            "<b>[HR Zone]:</b> z1, z2, z3, z4, z5"],
+                        
+        "/stats15":         "Show last <b>15</b> Run (Default Activity)",
+
+        "/statsz2":         "Show last <b>10</b> (Default) Run (Default) in <b>Zone 2</b> Heart Rate.",
+
+        "/stats30z2":       "Show last <b>30</b> Run in <b>Zone 2</b> Heart Rate.",
+    
+        "/statsswim15z3":   "Show last <b>15</b> Swim in <b>Zone 3</b> Heart Rate.",
+    
+        "/statsbike20z5":   "Show last <b>20</b> Bikes in <b>Zone 5</b> Heart Rate.",
+    
+        "/statsall25":      "Show last <b>25</b> regardless of activity types."
+    },
+
+    "/ErrMsg" : {
+        "Not Signed Up": "Please, ensure that you have signed up before using this service"
+    }
+    
+}
+
+
+
+
+
+
+
