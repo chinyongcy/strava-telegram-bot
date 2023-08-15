@@ -2,4 +2,6 @@
 __py_cache__/
 gpx_files/
 *.pyc
-async_app/*.png
+app/*.png
+*.DS_Store
+app_old/
